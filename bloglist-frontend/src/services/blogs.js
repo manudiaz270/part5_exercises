@@ -18,5 +18,16 @@ const create = async newObject => {
     return response.data
 }
 
+const like = async object => {
+    const newObject = {...object, likes: object.likes + 1}
+    const response = await axios.put(`${baseUrl}/${newObject.id}`, newObject)
+    return response.data
+}
 
-export default { getAll, setToken, create }
+const remove = async object => {
+    const response = await axios.delete(`${baseUrl}/${object.id}`)
+    return response.data
+}
+
+
+export default { getAll, setToken, create, like, remove }

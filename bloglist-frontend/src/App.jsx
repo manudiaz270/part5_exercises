@@ -3,18 +3,18 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
+import BlogPost from './components/BlogPost'
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [notification, setNotification] = useState(null)
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
     )  
   }, [])
 
@@ -57,24 +57,30 @@ const App = () => {
     setUser(null)
   }
 
-  const handleCreate = async (event) => {
-    event.preventDefault()
-    const newBlog = {
-        title,
-        author,
-        url
-    }
-    const response = blogService.create(newBlog)
-    setBlogs(blogs.concat(newBlog))
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+  const handleCreate = async (newBlog) => {
+    
+    const response = await blogService.create(newBlog)
+    console.log(response);
+    setBlogs(blogs.concat(response))
     setNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`)
     setTimeout(() => {
         setNotification(null)
     }, 5000)
   }
 
+  const handleLike = async (originalBlog) => {
+    const newBlog = await blogService.like(originalBlog)
+    setBlogs(blogs.filter(blog => blog.id !== originalBlog.id))
+    setBlogs(blogs.concat(newBlog))
+  }
+
+  const handleDelete = async (blog) => {
+
+    if(window.confirm('Do you really want to delete this blog post?')){
+        const response = await blogService.remove(blog)
+        setBlogs(blogs.filter(a => a.id !== blog.id))
+    }
+  }
 
   if(!user){
     return(
@@ -90,23 +96,21 @@ const App = () => {
     )
   }
 
-
+  
 
   return (
     <div>
         <Notification notification={notification}/>
       <h2>Blogs</h2>
+      {() => sortBlogs(blogs)}
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete}/>
       )}
       {user.name} logged in<button onClick={handleLogout}>logout</button>
       <h2>Create New</h2>
-    <form onSubmit={handleCreate}>
-        title<input type='text' value={title} onChange={({ target }) => setTitle(target.value)}/><br/>
-        author<input type='text' value={author} onChange={({ target }) => setAuthor(target.value)}/><br/>
-        url<input type='text' value={url} onChange={({ target }) => setUrl(target.value)}/><br/>
-        <button type='submit'>create</button>
-    </form>
+      <Togglable buttonLabel='create new blog'>
+        <BlogPost createBlog={handleCreate}/>
+      </Togglable>
     </div>
 
   )

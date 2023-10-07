@@ -19,10 +19,10 @@ const BlogPost = ({ createBlog }) => {
   return(
     <div>
       <form onSubmit={handleSubmit}>
-                title<input type='text' value={title} onChange={({ target }) => setTitle(target.value)}/><br/>
-                author<input type='text' value={author} onChange={({ target }) => setAuthor(target.value)}/><br/>
-                url<input type='text' value={url} onChange={({ target }) => setUrl(target.value)}/><br/>
-        <button type='submit'>create</button>
+                title<input type='text' value={title} onChange={({ target }) => setTitle(target.value)} className='title'/><br/>
+                author<input type='text' value={author} onChange={({ target }) => setAuthor(target.value)} className='author'/><br/>
+                url<input type='text' value={url} onChange={({ target }) => setUrl(target.value)} className='url'/><br/>
+        <button type='submit' className='create-button'>create</button>
       </form>
     </div>
   )

@@ -19,8 +19,11 @@ const create = async newObject => {
 }
 
 const like = async object => {
+  console.log(object)
   const newObject = { ...object, likes: object.likes + 1 }
+  console.log(newObject)
   const response = await axios.put(`${baseUrl}/${newObject.id}`, newObject)
+  console.log(response)
   return response.data
 }
 

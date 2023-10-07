@@ -35,6 +35,7 @@ const App = () => {
       const user = await loginService.login({
         username, password
       })
+      setUser(user)
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
@@ -45,7 +46,7 @@ const App = () => {
         setNotification(null)
       }, 5000)
     }
-    setUser(user)
+
     setUsername('')
     setPassword('')
 
@@ -69,9 +70,10 @@ const App = () => {
   }
 
   const handleLike = async (originalBlog) => {
-    const newBlog = await blogService.like(originalBlog)
+    await blogService.like(originalBlog)
     setBlogs(blogs.filter(blog => blog.id !== originalBlog.id))
-    setBlogs(blogs.concat(newBlog))
+    originalBlog['likes'] += 1
+    setBlogs(blogs.concat(originalBlog))
   }
 
   const handleDelete = async (blog) => {
@@ -87,10 +89,10 @@ const App = () => {
       <div>
         <Notification notification={notification}/>
         <h2>Log in to application</h2>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className='loginForm'>
                 username <input type='text' value={username} onChange={({ target }) => setUsername(target.value)}/><br/>
                 password <input type='password' value={password} onChange={({ target }) => setPassword(target.value)}/><br/>
-          <button type='submit'>Login</button>
+          <button type='submit' className='login-button'>Login</button>
         </form>
       </div>
     )
@@ -103,9 +105,9 @@ const App = () => {
       <Notification notification={notification}/>
       <h2>Blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete}/>
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete} user={user}/>
       )}
-      {user.name} logged in<button onClick={handleLogout}>logout</button>
+      {user.name} logged in<button onClick={handleLogout} className='logout-button'>logout</button>
       <h2>Create New</h2>
       <Togglable buttonLabel='create new blog'>
         <BlogPost createBlog={handleCreate}/>
